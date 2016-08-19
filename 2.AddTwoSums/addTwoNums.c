@@ -423,10 +423,80 @@ struct ListNode* addTwoNumbers(struct ListNode* l1, struct ListNode* l2)
     return retList;
 }
 
+
+struct ListNode* addTwoNumbers_optimized(struct ListNode* l1, struct ListNode* l2)
+{
+    struct ListNode *p1 = NULL, *m1 = NULL;
+    struct ListNode *tmpNode = NULL;
+    
+    p1 = l1;
+    m1 = l2;
+
+    struct ListNode *retList = NULL;
+    struct ListNode *lastNode = retList;
+    
+    int carry = 0, TotalSum = 0, tmpSum = 0;
+
+    while(p1 || m1)
+    {
+        int x = (p1 ? p1->val : 0);
+        int y = (m1 ? m1->val : 0);
+
+        TotalSum = x + y +carry;
+
+        carry = TotalSum / 10;
+
+        tmpSum = TotalSum % 10;
+
+        tmpNode = malloc(sizeof(struct ListNode));
+        tmpNode->next = NULL;
+        tmpNode->val = tmpSum;
+        
+        if (!retList)
+        {
+            retList = tmpNode;
+            lastNode = retList;
+        }
+        else
+        {
+            lastNode->next = tmpNode;
+            lastNode = tmpNode;
+        }
+        
+        //go ahead
+        if(p1)
+            p1 = p1->next;
+
+        if(m1)
+            m1 = m1->next;
+    }
+
+    if (carry)
+    {
+        tmpNode = malloc(sizeof(struct ListNode));
+        tmpNode->next = NULL;
+        tmpNode->val = carry;
+
+        if (!retList)
+        {
+            retList = tmpNode;
+            lastNode = retList;
+        }
+        else
+        {
+            lastNode->next = tmpNode;
+            lastNode = tmpNode;
+        }
+    }
+    
+    return retList;
+}
+
+
 int main()
 {
-    ListNode_init(&ListHead_1, 1, 9);
-    ListNode_init(&ListHead_2, 2, 10);
+    ListNode_init(&ListHead_1, 1, 3);
+    ListNode_init(&ListHead_2, 2, 3);
 
     printf("List1:\n");
     print_list(&ListHead_1);
@@ -434,7 +504,7 @@ int main()
     printf("List2:\n");
     print_list(&ListHead_2);
 
-    struct ListNode *newList = addTwoNumbers(ListHead_1.next, ListHead_2.next);
+    struct ListNode *newList = addTwoNumbers_optimized(ListHead_1.next, ListHead_2.next);
     printf("New List:\n");
     print_list_noheader(newList);
 

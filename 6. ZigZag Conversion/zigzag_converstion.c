@@ -2,11 +2,10 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define COLUMN 100
-#define ROWS 100
+#define COLUMN 500
+#define ROWS 1000
 
 char arr[ROWS][COLUMN] = {0};
-
 
 char * convert(char * s, int numRows)
 {
@@ -25,8 +24,6 @@ char * convert(char * s, int numRows)
 	memset(res, 0, strlen(s) + 1);
 	memset(arr, 0, COLUMN * ROWS);
 
-	char *p = res;
-
 	//Total string iterations
 	while(*s != '\0')
 	{
@@ -34,67 +31,41 @@ char * convert(char * s, int numRows)
 		//Arrary idx start with 0
 		if(NextColum == 0 || NextColum > 0 && NextColum % (numRows - 1) == 0)
 		{
-			int tmpColum = NextColum;
-
-			if(tmpColum == 0)
+			for(row = 0; row < numRows; row ++)
 			{
-				//first column
-				for(row = 0; row < numRows; row ++)
-				{
-					if(*s == '\0')
-						break;
-
-					arr[tmpColum][NextColum] = *s;
-					s ++;
-					tmpColum ++;
-					printf("%s:%d tmpColum:%d NextColum:%d [%c]\n", __func__, __LINE__, row, NextColum, arr[row][NextColum]);
-				}
-			}
-			else
-			{
-				//non first column
-				for(row = 0; row < numRows; row ++)
-				{
-					if(*s == '\0')
-						break;
-					
-					arr[row][NextColum] = *s;
-					s ++;
-					printf("%s:%d tmpColum:%d NextColum:%d [%c]\n", __func__, __LINE__, row, NextColum, arr[row][NextColum]);
-					tmpColum ++;
-				}
+				if(*s == '\0')
+					break;
+				
+				arr[row][NextColum] = *s;
+				s ++;
 			}
 
 			NextColum ++;
-			NextRow = numRows - 1;
+			NextRow = numRows - 2;//skip last one from bottom
 		}
 		else
 		{			
-			int i = numRows - 2;//skip last one from bottom
+			int i = NextRow;
 
 			for(; i > 0; i --)
 			{
-				int k = --NextRow;
-				arr[k][NextColum] = *s;
+				arr[NextRow][NextColum] = *s;
 				
-				printf("%s:%d k:%d NextColum:%d [%c]\n", __func__, __LINE__, k, NextColum, arr[k][NextColum]);
-
 				s++;
+				NextRow--;
 
 				if(*s == '\0')
 					break;
+
 				NextColum ++;
-				if(NextColum > 0 && NextColum % (numRows - 1) == 0)
-					break;
 			}
 		}
 	}
 	
-	//dumparrary();
-
 	int i,j;
+	char *p = res;
 
-	for(i = 0; i < ROWS; i ++)
+	for(i = 0; i < numRows; i ++)
 	{
 		for(j = 0; j < COLUMN; j ++)
 		{
@@ -108,9 +79,10 @@ char * convert(char * s, int numRows)
 	return res;
 }
 
+
 int main(int argc, char const *argv[])
 {
-	char *s = "ABCDE";
+	char *s = "PAYPALISHIRING";
 	//char *s = "AB";
 
 	if (argc <= 1){
@@ -120,12 +92,9 @@ int main(int argc, char const *argv[])
 
 	int row = atoi(argv[1]);
 
-	printf("s=%s, len:%d, row:%d\n", s, strlen(s), row);
-
 	char *res = convert(s, row);
 
 	printf("res=[%s]\n", res);
-
 	/* code */
 	return 0;
 }

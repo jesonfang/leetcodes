@@ -4,45 +4,31 @@
 #include <math.h>
 #include <ctype.h>
 
-int doAtoi(char *valid_str)
+int doAtoi(char *valid_str, int positive)
 {
-	int positive = 1, res = 0, outOfBound = 0;
+	int res = 0, base_out_bound = 0;
 	long int convert_count = 0;
+	unsigned char skip_head_zeros = 1;
+	long int base = 1;
 
 	int max_int = (pow(2, 31) - 1);
 	int min_int = (pow(-2, 31));
 
 	char *p = valid_str;
-
-	if(*p == '-')
-	{
-		positive = 0;
-	}
-	
-	if(!isdigit(*p))
-	{	
-		p ++;
-	}
-	
-	//printf("Convert %s into integer, %s number.\n", p, positive ? "positive" : "negative");
-
-	//extract whole num string
 	char *p_end = p;
-	
-	unsigned char skip_zero = 1;
+
 
 	while(1)
 	{
-		//printf("%s:%d, char:%c\n", __func__, __LINE__, *p_end);
 		if((*p_end) != '\0' && isdigit(*p_end))
 		{
-			if(skip_zero && (*p_end - '0' == 0))
+			if(skip_head_zeros && (*p_end - '0' == 0))
 			{
 				p ++;//skip zero
 			}
 			else
 			{
-				skip_zero = 0;
+				skip_head_zeros = 0;
 			}
 
 			p_end ++;
@@ -53,18 +39,12 @@ int doAtoi(char *valid_str)
 		}
 	}
 	
-	*p_end = '\0';
-
-	//printf("Convert %s into integer, strlen(%d).\n", p, strlen(p));
+	* (p_end --) = '\0';
 
 	if(strlen(p) <= 0)
 		return 0;
 
-	p_end --;
-
-	long int base = 1;
-
-	while(p_end!= NULL && isdigit(*p_end))
+	while(p_end!= NULL)
 	{
 		if(p == p_end)
 		{
@@ -73,14 +53,15 @@ int doAtoi(char *valid_str)
 		}
 
 		convert_count += (*p_end - '0') * base;
-		//printf("convert_count %ld .\n", convert_count);
 
 		base *= 10;
 
-		if(base >= max_int){
-			outOfBound = 1;
+		if(base >= max_int)
+		{
+			base_out_bound = 1;
 			break;
 		}
+
 		p_end -= 1;//From end to start
 	}
 
@@ -89,13 +70,11 @@ int doAtoi(char *valid_str)
 		convert_count = 0 - convert_count;
 	}
 
-	//printf("convert_count:%d maxInt:%d minInt:%d\n", convert_count, max_int, min_int);
-
-	if(positive && (outOfBound || convert_count > max_int))
+	if(positive && (base_out_bound || convert_count > max_int))
 	{
 		return max_int;
 	}
-	else if(!positive && (outOfBound || convert_count < min_int))
+	else if(!positive && (base_out_bound || convert_count < min_int))
 	{
 		return min_int;
 	}
@@ -105,6 +84,7 @@ int doAtoi(char *valid_str)
 	return res;
 }
 
+
 int myAtoi(char * str){
 	int res = 0;
 	char *p = str;
@@ -112,8 +92,6 @@ int myAtoi(char * str){
 	if (p == NULL)
 		return 0;	
 	
-	//printf("%s:%d, Convert %s into integer.\n", __func__, __LINE__, p);
-
 	//strip space
 	while(1)
 	{
@@ -124,15 +102,22 @@ int myAtoi(char * str){
 	}
 
 	//strip non-valid convertion
-	if(*p == '+' || *p == '-' || isdigit(*p))
-	{
-		res = doAtoi(p);
-	}
-	else
-	{
-		//printf("not a valid string can be converted.\n");
-		return 0;
-	}
+    if(*p == '-')
+    {
+        res = doAtoi(++p, 0);
+    }
+    else if (*p == '+')
+    {
+        res = doAtoi(++p, 1);
+    }
+    else if(isdigit(*p))
+    {
+        res = doAtoi(p, 1);
+    }
+    else
+    {
+        return 0;
+    }
 
 	return res;
 }

@@ -82,8 +82,68 @@ bool isValidRegExpressString(char *s)
 
 bool doMatch(char *s, char *p)
 {
-    bool ret = false;
+    bool ret = true;
 
+    char *pprev = p;
+
+    while(*s != '\0')
+    {
+        if(isalpha(*p))
+        {
+            if(*s != *p)
+                return false;
+
+            printf("[%s:%d] *pprev [%c] *p [%c] *s [%c]\n", __func__, __LINE__, *pprev, *p, *s);
+
+            pprev = p;
+            
+            p ++;
+            s ++;
+        }
+        else if(*p == REG_EXP_MATCH_SINGLE_CHAR)
+        {
+            printf("[%s:%d] *pprev [%c] *p [%c] *s [%c]\n", __func__, __LINE__, *pprev, *p, *s);
+
+            pprev = p;
+
+            p ++;
+            s ++;
+        }
+        else if(*p == REG_EXP_MATCH_PRECED_CHAR)
+        {
+            printf("[%s:%d] *pprev [%c] *p [%c] *s [%c]\n", __func__, __LINE__, *pprev, *p, *s);
+
+            if(*s == REG_EXP_MATCH_SINGLE_CHAR)
+            {
+                s ++;
+            }
+            else if(*pprev != REG_EXP_MATCH_PRECED_CHAR && *s == *pprev)
+            {
+                s ++;
+            }
+            else if(*pprev == REG_EXP_MATCH_PRECED_CHAR)
+            {
+                p ++;
+                s ++;
+            }
+            else
+            {
+                pprev = p;
+                p ++;
+                s ++;
+            }
+        }
+        else if(*p == '\0')
+        {
+            printf("[%s:%d] *pprev [%c] *p [%c] *s [%c]\n", __func__, __LINE__, *pprev, *p, *s);
+            ret = false;
+            break;
+        }
+
+        if(*s == '\0' && *p != '\0')
+            ret = false;
+    }
+    
     return ret;
 }
 
@@ -96,7 +156,7 @@ bool isMatch(char * s, char * p){
     //check string validation
     if (isValidString(s) && isValidRegExpressString(p))
     {
-        printf("valid string, Lets match..\n");
+        printf("valid string, do match..\n");
         ret = doMatch(s, p);
     }
     else

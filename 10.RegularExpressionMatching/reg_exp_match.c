@@ -23,7 +23,7 @@ bool isAlphAndLower(char x)
 }
 
 
-bool isValidString(char *s)
+bool isValidString(const char *s)
 {
     bool ret = true;
     char *p = s;
@@ -52,7 +52,7 @@ bool isValidString(char *s)
 }
 
 
-bool isValidRegExpressString(char *s)
+bool isValidRegExpressString(const char *s)
 {
     bool ret = true;
     char *p = s;
@@ -79,15 +79,114 @@ bool isValidRegExpressString(char *s)
 
     return ret;
 }
-
+#if 0
 bool doMatch(char *s, char *p)
 {
-    bool ret = false;
+    bool ret = true;
 
+    char *pprev = p;
+
+    while(*s != '\0')
+    {
+        if(isalpha(*p))
+        {
+            if(*s != *p)
+                return false;
+
+            printf("[%s:%d] *pprev [%c] *p [%c] *s [%c]\n", __func__, __LINE__, *pprev, *p, *s);
+
+            pprev = p;
+            
+            p ++;
+            s ++;
+        }
+        else if(*p == REG_EXP_MATCH_SINGLE_CHAR)
+        {
+            printf("[%s:%d] *pprev [%c] *p [%c] *s [%c]\n", __func__, __LINE__, *pprev, *p, *s);
+
+            pprev = p;
+
+            p ++;
+            s ++;
+        }
+        else if(*p == REG_EXP_MATCH_PRECED_CHAR)
+        {
+            printf("[%s:%d] *pprev [%c] *p [%c] *s [%c]\n", __func__, __LINE__, *pprev, *p, *s);
+
+            if(*s == REG_EXP_MATCH_SINGLE_CHAR)
+            {
+                s ++;
+            }
+            else if(*pprev != REG_EXP_MATCH_PRECED_CHAR && *s == *pprev)
+            {
+                s ++;
+            }
+            else if(*pprev == REG_EXP_MATCH_PRECED_CHAR)
+            {
+                p ++;
+                s ++;
+            }
+            else
+            {
+                pprev = p;
+                p ++;
+                s ++;
+            }
+        }
+        else if(*p == '\0')
+        {
+            printf("[%s:%d] *pprev [%c] *p [%c] *s [%c]\n", __func__, __LINE__, *pprev, *p, *s);
+            ret = false;
+            break;
+        }
+
+        if(*s == '\0' && *p != '\0')
+            ret = false;
+    }
+    
     return ret;
 }
+#endif
 
-bool isMatch(char * s, char * p){
+#define MAX_I 800
+#define MAX_J 800
+unsigned char result[MAX_I][MAX_J];
+
+bool dp(int i, int j, const char *s, const char *p)
+{
+    if (i < MAX_I && j < MAX_J)
+        result[i][j] = true;
+
+    bool ans = false;
+    if (j == strlen(p)){
+        ans = (i == strlen(s));
+    }
+    else
+    {
+        bool first_match = (i < strlen(s) && (*(p + j) == *(s + i) || (*(p+j) == '.')));
+
+        if (j + 1 < strlen(p) && *(p + j + 1) == '*')
+        {
+            ans = (dp(i, j + 2, s, p) || first_match && dp(i + 1, j, s, p));
+        }
+        else
+        {
+            ans = (first_match && dp(i + 1, j + 1, s, p));
+        }
+    }
+
+    result[i][j] = ans ? true : false;
+    
+    return ans;
+}
+
+bool doMatch(const char *s, const char *p)
+{
+    return dp(0, 0, s, p);
+}
+
+
+bool isMatch(const char * s, const char * p){
     bool ret = false;
 
     if(!s || !p)
@@ -96,7 +195,7 @@ bool isMatch(char * s, char * p){
     //check string validation
     if (isValidString(s) && isValidRegExpressString(p))
     {
-        printf("valid string, Lets match..\n");
+        printf("valid string, do match..\n");
         ret = doMatch(s, p);
     }
     else

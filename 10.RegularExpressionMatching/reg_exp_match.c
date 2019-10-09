@@ -23,7 +23,7 @@ bool isAlphAndLower(char x)
 }
 
 
-bool isValidString(char *s)
+bool isValidString(const char *s)
 {
     bool ret = true;
     char *p = s;
@@ -52,7 +52,7 @@ bool isValidString(char *s)
 }
 
 
-bool isValidRegExpressString(char *s)
+bool isValidRegExpressString(const char *s)
 {
     bool ret = true;
     char *p = s;
@@ -79,7 +79,7 @@ bool isValidRegExpressString(char *s)
 
     return ret;
 }
-
+#if 0
 bool doMatch(char *s, char *p)
 {
     bool ret = true;
@@ -146,8 +146,47 @@ bool doMatch(char *s, char *p)
     
     return ret;
 }
+#endif
 
-bool isMatch(char * s, char * p){
+#define MAX_I 800
+#define MAX_J 800
+unsigned char result[MAX_I][MAX_J];
+
+bool dp(int i, int j, const char *s, const char *p)
+{
+    if (i < MAX_I && j < MAX_J)
+        result[i][j] = true;
+
+    bool ans = false;
+    if (j == strlen(p)){
+        ans = (i == strlen(s));
+    }
+    else
+    {
+        bool first_match = (i < strlen(s) && (*(p + j) == *(s + i) || (*(p+j) == '.')));
+
+        if (j + 1 < strlen(p) && *(p + j + 1) == '*')
+        {
+            ans = (dp(i, j + 2, s, p) || first_match && dp(i + 1, j, s, p));
+        }
+        else
+        {
+            ans = (first_match && dp(i + 1, j + 1, s, p));
+        }
+    }
+
+    result[i][j] = ans ? true : false;
+    
+    return ans;
+}
+
+bool doMatch(const char *s, const char *p)
+{
+    return dp(0, 0, s, p);
+}
+
+
+bool isMatch(const char * s, const char * p){
     bool ret = false;
 
     if(!s || !p)

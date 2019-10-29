@@ -79,6 +79,65 @@ bool isValidRegExpressString(const char *s)
 
     return ret;
 }
+
+#define MAX_I 800
+#define MAX_J 800
+unsigned char result[MAX_I][MAX_J];
+
+bool dp(int i, int j, const char *s, const char *p)
+{
+    if (i < MAX_I && j < MAX_J)
+        result[i][j] = true;
+
+    bool ans = false;
+    if (j == strlen(p)){
+        ans = (i == strlen(s));
+    }
+    else
+    {
+        bool first_match = (i < strlen(s) && (*(p + j) == *(s + i) || (*(p+j) == '.')));
+
+        if (j + 1 < strlen(p) && *(p + j + 1) == '*')
+        {
+            ans = (dp(i, j + 2, s, p) || first_match && dp(i + 1, j, s, p));
+        }
+        else
+        {
+            ans = (first_match && dp(i + 1, j + 1, s, p));
+        }
+    }
+
+    result[i][j] = ans ? true : false;
+    
+    return ans;
+}
+
+bool doMatch(const char *s, const char *p)
+{
+    return dp(0, 0, s, p);
+}
+
+
+bool isMatch(const char * s, const char * p){
+    bool ret = false;
+
+    if(!s || !p)
+        return ret;
+
+    //check string validation
+    if (isValidString(s) && isValidRegExpressString(p))
+    {
+        printf("valid string, do match..\n");
+        ret = doMatch(s, p);
+    }
+    else
+    {
+        printf("We only support be empty and contains only lowercase letters a-z, and characters like . or *\n");
+    }
+
+    return ret;
+}
+
 #if 0
 bool doMatch(char *s, char *p)
 {
@@ -147,65 +206,6 @@ bool doMatch(char *s, char *p)
     return ret;
 }
 #endif
-
-#define MAX_I 800
-#define MAX_J 800
-unsigned char result[MAX_I][MAX_J];
-
-bool dp(int i, int j, const char *s, const char *p)
-{
-    if (i < MAX_I && j < MAX_J)
-        result[i][j] = true;
-
-    bool ans = false;
-    if (j == strlen(p)){
-        ans = (i == strlen(s));
-    }
-    else
-    {
-        bool first_match = (i < strlen(s) && (*(p + j) == *(s + i) || (*(p+j) == '.')));
-
-        if (j + 1 < strlen(p) && *(p + j + 1) == '*')
-        {
-            ans = (dp(i, j + 2, s, p) || first_match && dp(i + 1, j, s, p));
-        }
-        else
-        {
-            ans = (first_match && dp(i + 1, j + 1, s, p));
-        }
-    }
-
-    result[i][j] = ans ? true : false;
-    
-    return ans;
-}
-
-bool doMatch(const char *s, const char *p)
-{
-    return dp(0, 0, s, p);
-}
-
-
-bool isMatch(const char * s, const char * p){
-    bool ret = false;
-
-    if(!s || !p)
-        return ret;
-
-    //check string validation
-    if (isValidString(s) && isValidRegExpressString(p))
-    {
-        printf("valid string, do match..\n");
-        ret = doMatch(s, p);
-    }
-    else
-    {
-        printf("We only support be empty and contains only lowercase letters a-z, and characters like . or *\n");
-    }
-
-    return ret;
-}
-
 
 int main(int argc, char const *argv[])
 {

@@ -20,7 +20,7 @@ int main(void)
 
         for(r5 = x / 5; r5 > 0; r5 --)
         {
-            for(r2 = x / 2; r2 > 0; r2 --)
+            for(r2 = (x - r5 * 5) / 2; r2 > 0; r2 --)
             {
                 r1 = x - r5 * 5 - r2 * 2;
 
